@@ -20,10 +20,14 @@
                     <div class="mb-3">
                         <label class="form-label">Estado</label>
                         <select name="estado" class="form-select" required>
-                            <option value="pendiente" {{ $cita->estado == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
-                            <option value="confirmada" {{ $cita->estado == 'confirmada' ? 'selected' : '' }}>Confirmada</option>
-                            <option value="completada" {{ $cita->estado == 'completada' ? 'selected' : '' }}>Completada</option>
-                            <option value="cancelada" {{ $cita->estado == 'cancelada' ? 'selected' : '' }}>Cancelada</option>
+                            @if(auth()->user()->esAdmin() || auth()->user()->esDoctor())
+                                <option value="pendiente" {{ $cita->estado == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
+                                <option value="confirmada" {{ $cita->estado == 'confirmada' ? 'selected' : '' }}>Confirmada</option>
+                                <option value="completada" {{ $cita->estado == 'completada' ? 'selected' : '' }}>Completada</option>
+                                <option value="cancelada" {{ $cita->estado == 'cancelada' ? 'selected' : '' }}>Cancelada</option>
+                            @else
+                                <option value="cancelada" {{ $cita->estado == 'cancelada' ? 'selected' : '' }}>Cancelada</option>
+                            @endif
                         </select>
                     </div>
                     <div class="d-flex justify-content-between">

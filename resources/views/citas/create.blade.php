@@ -33,6 +33,18 @@
                         </select>
                     </div>
 
+                    @if(auth()->user()->esDoctor() || auth()->user()->esAdmin())
+                    <div class="mb-3">
+                        <label class="form-label">Paciente</label>
+                        <select name="paciente_id" class="form-select" required>
+                            <option value="">Seleccionar paciente...</option>
+                            @foreach($pacientes as $paciente)
+                                <option value="{{ $paciente->id }}">{{ $paciente->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    @endif
+
                     <div class="mb-3">
                         <label class="form-label">Fecha</label>
                         <input type="date" id="fecha" name="fecha" class="form-control"
@@ -68,7 +80,6 @@
 
 @section('scripts')
 <script>
-// Filtrar doctores por especialidad
 $('#especialidad_id').change(function() {
     let especialidadId = $(this).val();
     $('#doctor_id option').each(function() {
@@ -82,7 +93,6 @@ $('#especialidad_id').change(function() {
     $('#div_horarios').hide();
 });
 
-// Cargar horarios disponibles via AJAX
 function cargarHorarios() {
     let doctorId = $('#doctor_id').val();
     let fecha = $('#fecha').val();
@@ -106,7 +116,6 @@ function cargarHorarios() {
                                 $('<option>').val(hora).text(hora)
                             );
                         }
-                        // Sumar duración + margen
                         let [h, m] = hora.split(':').map(Number);
                         let totalMin = h * 60 + m + duracion + res.horarios[0].margen_minutos;
                         h = Math.floor(totalMin / 60);

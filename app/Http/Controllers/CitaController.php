@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cita;
 use App\Models\Doctor;
 use App\Models\Especialidad;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class CitaController extends Controller
@@ -31,9 +32,13 @@ class CitaController extends Controller
 
     public function create()
     {
+        $user = auth()->user();
         $especialidades = Especialidad::where('activo', true)->get();
         $doctores = Doctor::with(['user', 'especialidad'])->where('activo', true)->get();
-        return view('citas.create', compact('especialidades', 'doctores'));
+        $pacientes = ($user->esDoctor() || $user->esAdmin())
+            ? User::where('rol', 'paciente')->get()
+            : null;
+        return view('citas.create', compact('especialidades', 'doctores', 'pacientes'));
     }
 
     public function store(Request $request)
@@ -49,9 +54,14 @@ class CitaController extends Controller
         $duracion = $doctor->especialidad->duracion_consulta;
         $hora_fin = date('H:i', strtotime($request->hora_inicio . ' + ' . $duracion . ' minutes'));
 
+        $user = auth()->user();
+        $paciente_id = ($user->esDoctor() || $user->esAdmin()) && $request->paciente_id
+            ? $request->paciente_id
+            : auth()->id();
+
         Cita::create([
             'doctor_id'   => $request->doctor_id,
-            'user_id'     => auth()->id(),
+            'user_id'     => $paciente_id,
             'fecha'       => $request->fecha,
             'hora_inicio' => $request->hora_inicio,
             'hora_fin'    => $hora_fin,
@@ -75,22 +85,21 @@ class CitaController extends Controller
     }
 
     public function update(Request $request, Cita $cita)
-{
-    $request->validate([
-        'estado' => 'required|in:pendiente,confirmada,completada,cancelada',
-    ]);
+    {
+        $request->validate([
+            'estado' => 'required|in:pendiente,confirmada,completada,cancelada',
+        ]);
 
-    $estadoAnterior = $cita->estado;
-    $cita->modificar($request->estado);
+        $estadoAnterior = $cita->estado;
+        $cita->modificar($request->estado);
 
-    // Enviar notificación si la cita fue confirmada
-    if ($request->estado === 'confirmada' && $estadoAnterior !== 'confirmada') {
-        $cita->paciente->notify(new \App\Notifications\CitaConfirmada($cita));
+        if ($request->estado === 'confirmada' && $estadoAnterior !== 'confirmada') {
+            $cita->paciente->notify(new \App\Notifications\CitaConfirmada($cita));
+        }
+
+        return redirect()->route('citas.index')
+                         ->with('success', 'Cita actualizada correctamente');
     }
-
-    return redirect()->route('citas.index')
-                     ->with('success', 'Cita actualizada correctamente');
-}
 
     public function destroy(Cita $cita)
     {
@@ -99,7 +108,6 @@ class CitaController extends Controller
                          ->with('success', 'Cita cancelada correctamente');
     }
 
-    // AJAX - obtener horarios disponibles
     public function horariosDisponibles(Request $request)
     {
         $doctor = Doctor::find($request->doctor_id);
@@ -117,9 +125,9 @@ class CitaController extends Controller
                              ->pluck('hora_inicio');
 
         return response()->json([
-            'horarios'      => $horarios,
-            'ocupadas'      => $citasOcupadas,
-            'duracion'      => $doctor->especialidad->duracion_consulta,
+            'horarios' => $horarios,
+            'ocupadas' => $citasOcupadas,
+            'duracion' => $doctor->especialidad->duracion_consulta,
         ]);
     }
 }
