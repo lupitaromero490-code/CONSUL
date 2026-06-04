@@ -128,4 +128,36 @@
         </div>
     </div>
 </div>
+
+<div class="row g-3 mt-3">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-header card-header-morado">
+                <i class="bi bi-database"></i> Estado de Bases de Datos
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 text-center">
+                        <i class="bi bi-database fs-2" style="color: var(--morado-medio)"></i>
+                        <h5 class="mt-2">MySQL (Principal)</h5>
+                        @if($conexiones['mysql'] == 'activo')
+                            <span class="badge bg-success fs-6">Activo</span>
+                        @else
+                            <span class="badge bg-danger fs-6">Inactivo</span>
+                        @endif
+                    </div>
+                    <div class="col-md-6 text-center">
+                        <i class="bi bi-database-fill fs-2" style="color: var(--morado-medio)"></i>
+                        <h5 class="mt-2">PostgreSQL (Réplica)</h5>
+                        @if($conexiones['pgsql'] == 'activo')
+                            <span class="badge bg-success fs-6">Activo</span>
+                        @else
+                            <span class="badge bg-danger fs-6">Inactivo</span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
