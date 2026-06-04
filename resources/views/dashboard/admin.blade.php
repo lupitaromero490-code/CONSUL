@@ -61,7 +61,7 @@
 </div>
 
 <div class="row g-3">
-    <div class="col-md-6">
+    <div class="col-md-5">
         <div class="card shadow-sm">
             <div class="card-header card-header-morado">
                 <i class="bi bi-person-badge"></i> Accesos Rápidos
@@ -81,16 +81,49 @@
             </div>
         </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-7">
         <div class="card shadow-sm">
             <div class="card-header card-header-morado">
-                <i class="bi bi-info-circle"></i> Información del Sistema
+                <i class="bi bi-calendar-day"></i> Citas de Hoy
             </div>
-            <div class="card-body">
-                <p><strong>Sistema:</strong> CONSUL v1.0</p>
-                <p><strong>Framework:</strong> Laravel 13</p>
-                <p><strong>Base de datos:</strong> MySQL</p>
-                <p><strong>Fecha:</strong> {{ now()->format('d/m/Y') }}</p>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Hora</th>
+                            <th>Doctor</th>
+                            <th>Paciente</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse(\App\Models\Cita::with(['doctor.user','paciente'])
+                            ->whereDate('fecha', today())
+                            ->orderBy('hora_inicio')
+                            ->take(5)->get() as $cita)
+                        <tr>
+                            <td>{{ $cita->hora_inicio }}</td>
+                            <td>{{ $cita->doctor->user->name }}</td>
+                            <td>{{ $cita->paciente->name }}</td>
+                            <td>
+                                @if($cita->estado == 'pendiente')
+                                    <span class="badge bg-warning">Pendiente</span>
+                                @elseif($cita->estado == 'confirmada')
+                                    <span class="badge bg-success">Confirmada</span>
+                                @elseif($cita->estado == 'completada')
+                                    <span class="badge bg-primary">Completada</span>
+                                @else
+                                    <span class="badge bg-danger">Cancelada</span>
+                                @endif
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-3">No hay citas para hoy</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Doctor extends Model
 {
     protected $table = 'doctores';
+    protected $primaryKey = 'id';
+    public $incrementing = true;
 
     protected $fillable = [
         'user_id',
@@ -17,6 +19,11 @@ class Doctor extends Model
         'descripcion',
         'activo'
     ];
+
+    public function getRouteKeyName(): string
+    {
+        return 'id';
+    }
 
     public function user()
     {

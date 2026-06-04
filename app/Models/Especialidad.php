@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Especialidad extends Model
 {
     protected $table = 'especialidades';
+    protected $primaryKey = 'id';
+    public $incrementing = true;
 
     protected $fillable = [
         'nombre',
@@ -14,6 +16,11 @@ class Especialidad extends Model
         'duracion_consulta',
         'activo'
     ];
+
+    public function getRouteKeyName(): string
+    {
+        return 'id';
+    }
 
     public function doctores()
     {
