@@ -75,15 +75,22 @@ class CitaController extends Controller
     }
 
     public function update(Request $request, Cita $cita)
-    {
-        $request->validate([
-            'estado' => 'required|in:pendiente,confirmada,completada,cancelada',
-        ]);
+{
+    $request->validate([
+        'estado' => 'required|in:pendiente,confirmada,completada,cancelada',
+    ]);
 
-        $cita->modificar($request->estado);
-        return redirect()->route('citas.index')
-                         ->with('success', 'Cita actualizada correctamente');
+    $estadoAnterior = $cita->estado;
+    $cita->modificar($request->estado);
+
+    // Enviar notificación si la cita fue confirmada
+    if ($request->estado === 'confirmada' && $estadoAnterior !== 'confirmada') {
+        $cita->paciente->notify(new \App\Notifications\CitaConfirmada($cita));
     }
+
+    return redirect()->route('citas.index')
+                     ->with('success', 'Cita actualizada correctamente');
+}
 
     public function destroy(Cita $cita)
     {
