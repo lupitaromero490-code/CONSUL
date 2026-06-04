@@ -40,13 +40,17 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['rol:admin,doctor'])->group(function () {
         Route::resource('consultas', ConsultaController::class);
         Route::get('consultas/{consulta}/pdf', [ConsultaController::class, 'pdf'])
-             ->name('consultas.pdf');
+            ->name('consultas.pdf');
     });
+
+    // Debe ir ANTES del resource
+    Route::get('citas/horarios-disponibles', [CitaController::class, 'horariosDisponibles'])
+        ->name('citas.horarios');
 
     // Todos los usuarios autenticados
     Route::resource('citas', CitaController::class);
     Route::get('citas/horarios-disponibles', [CitaController::class, 'horariosDisponibles'])
-         ->name('citas.horarios');
+        ->name('citas.horarios');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
