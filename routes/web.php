@@ -16,14 +16,13 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// Rutas autenticadas
 Route::middleware(['auth'])->group(function () {
 
-    // Dashboard
+    // Dashboard general
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Solo admin
-    Route::middleware(['auth'])->group(function () {
+    // Solo administrador
+    Route::middleware(['rol:admin'])->group(function () {
         Route::resource('especialidades', EspecialidadController::class);
         Route::resource('doctores', DoctorController::class);
         Route::resource('servicios', ServicioController::class);
@@ -32,14 +31,22 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('turnos', TurnoController::class);
     });
 
-    // Doctores y admin
-    Route::resource('consultas', ConsultaController::class);
-    Route::get('consultas/{consulta}/pdf', [ConsultaController::class, 'pdf'])->name('consultas.pdf');
-    Route::resource('horarios', HorarioController::class);
+    // Solo doctor
+    Route::middleware(['rol:doctor'])->group(function () {
+        Route::resource('horarios', HorarioController::class);
+    });
+
+    // Admin y doctor
+    Route::middleware(['rol:admin,doctor'])->group(function () {
+        Route::resource('consultas', ConsultaController::class);
+        Route::get('consultas/{consulta}/pdf', [ConsultaController::class, 'pdf'])
+             ->name('consultas.pdf');
+    });
 
     // Todos los usuarios autenticados
     Route::resource('citas', CitaController::class);
-    Route::get('citas/horarios-disponibles', [CitaController::class, 'horariosDisponibles'])->name('citas.horarios');
+    Route::get('citas/horarios-disponibles', [CitaController::class, 'horariosDisponibles'])
+         ->name('citas.horarios');
 });
 
 require __DIR__.'/auth.php';
