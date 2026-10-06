@@ -15,7 +15,7 @@ Laravel 13, PHP 8.3+, Blade, Tailwind CSS, Alpine.js, Vite, Laravel Breeze, Lara
 - Notificación por correo al confirmar una cita
 - API con autenticación por tokens (Sanctum)
 - Réplica de la base de datos en PostgreSQL
-- Seeders con 3,000 registros de prueba
+- Seeders con 3,000 citas de prueba
 
 ## Cómo correrlo
 Requisitos: Git, Docker Desktop, PHP y Composer.
